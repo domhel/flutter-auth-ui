@@ -192,6 +192,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
       nonce: hashedNonce,
     );
 
+    debugPrint('AUTH_UI: ${credential.toString()}');
     final idToken = credential.identityToken;
     if (idToken == null) {
       throw const AuthException(
