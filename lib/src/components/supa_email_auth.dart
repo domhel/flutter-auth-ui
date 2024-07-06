@@ -64,12 +64,12 @@ class SupaEmailAuth extends StatefulWidget {
   final String? resetPasswordRedirectTo;
 
   /// Callback for the user to complete a sign in.
-  final void Function(AuthResponse response) onSignInComplete;
+  final void Function(AuthResponse response)? onSignInComplete;
 
   /// Callback for the user to complete a signUp.
   ///
   /// If email confirmation is turned on, the user is
-  final void Function(AuthResponse response) onSignUpComplete;
+  final void Function(AuthResponse response)? onSignUpComplete;
 
   /// Callback for sending the password reset email
   final void Function()? onPasswordResetEmailSent;
@@ -100,8 +100,8 @@ class SupaEmailAuth extends StatefulWidget {
     super.key,
     this.redirectTo,
     this.resetPasswordRedirectTo,
-    required this.onSignInComplete,
-    required this.onSignUpComplete,
+    this.onSignInComplete,
+    this.onSignUpComplete,
     this.onPasswordResetEmailSent,
     this.onError,
     this.onToggleSignIn,
@@ -242,7 +242,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                         email: _emailController.text.trim(),
                         password: _passwordController.text.trim(),
                       );
-                      widget.onSignInComplete.call(response);
+                      widget.onSignInComplete?.call(response);
                     } else {
                       final user = supabase.auth.currentUser;
                       late final AuthResponse response;
@@ -265,7 +265,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                           data: _resolveData(),
                         );
                       }
-                      widget.onSignUpComplete.call(response);
+                      widget.onSignUpComplete?.call(response);
                     }
                   } on AuthException catch (error) {
                     if (widget.onError == null && context.mounted) {

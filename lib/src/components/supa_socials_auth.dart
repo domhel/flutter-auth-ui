@@ -107,11 +107,16 @@ class SupaSocialsAuth extends StatefulWidget {
   /// Typically used to pass a DeepLink
   final String? redirectUrl;
 
-  /// Method to be called when the auth action is success
-  final void Function(Session session) onSuccess;
+  /// Method to be called when the auth action is successful.
+  /// Only called when `useExternalAuthChangeListener` is false
+  final void Function(Session response)? onSuccess;
 
   /// Method to be called when the auth action threw an excepction
   final void Function(Object error)? onError;
+
+  /// Setting this to true will not instantiate a new onAuthStateChanged
+  /// subscription. Must not be used together with `onSuccess`
+  final bool useExternalAuthChangeListener;
 
   /// Whether to show a SnackBar after a successful sign in
   final bool showSuccessSnackBar;
@@ -132,21 +137,22 @@ class SupaSocialsAuth extends StatefulWidget {
     required this.socialProviders,
     this.colored = true,
     this.redirectUrl,
-    required this.onSuccess,
+    this.onSuccess,
     this.onError,
+    this.useExternalAuthChangeListener = false,
     this.socialButtonVariant = SocialButtonVariant.iconAndText,
     this.showSuccessSnackBar = true,
     this.scopes,
     this.queryParams,
     this.localization = const SupaSocialsAuthLocalization(),
-  });
+  }) : assert(useExternalAuthChangeListener == false || onSuccess == null);
 
   @override
   State<SupaSocialsAuth> createState() => _SupaSocialsAuthState();
 }
 
 class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
-  late final StreamSubscription<AuthState> _gotrueSubscription;
+  late final StreamSubscription<AuthState>? _gotrueSubscription;
   late final SupaSocialsAuthLocalization localization;
 
   /// Performs Google sign in on Android and iOS
@@ -210,22 +216,28 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
   void initState() {
     super.initState();
     localization = widget.localization;
-    _gotrueSubscription =
-        Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-      final session = data.session;
-      if (session != null && mounted) {
-        widget.onSuccess.call(session);
+    if (widget.useExternalAuthChangeListener) {
+      _gotrueSubscription = null;
+    } else {
+      _gotrueSubscription =
+          Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+        final session = data.session;
+        final onSuccess = widget.onSuccess;
+        if (session != null && mounted && onSuccess != null) {
+          onSuccess(session);
+        widget.onSuccess?.call(session);
         if (widget.showSuccessSnackBar) {
           context.showSnackBar(localization.successSignInMessage);
         }
-      }
-    });
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _gotrueSubscription.cancel();
+    _gotrueSubscription?.cancel();
   }
 
   @override
