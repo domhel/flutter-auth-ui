@@ -127,6 +127,10 @@ class SupaSocialsAuth extends StatefulWidget {
   /// Parameters to include in provider authorization request (ex. {'prompt': 'consent'})
   final Map<OAuthProvider, Map<String, String>>? queryParams;
 
+  /// Callback that can be used as a workaround during native Apple sign in
+  /// to receive full name.
+  final void Function(String? givenName, String? familyName)? onAppleFullNameReceived;
+
   /// Localization for the form
   final SupaSocialsAuthLocalization localization;
 
@@ -144,6 +148,7 @@ class SupaSocialsAuth extends StatefulWidget {
     this.showSuccessSnackBar = true,
     this.scopes,
     this.queryParams,
+    this.onAppleFullNameReceived,
     this.localization = const SupaSocialsAuthLocalization(),
   }) : assert(useExternalAuthChangeListener == false || onSuccess == null);
 
@@ -199,6 +204,12 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
       nonce: hashedNonce,
     );
 
+    final givenName = credential.givenName;
+    final familyName = credential.familyName;
+    if (givenName != null || familyName != null) {
+      widget.onAppleFullNameReceived?.call(givenName, familyName);
+    }
+
     final idToken = credential.identityToken;
     if (idToken == null) {
       throw const AuthException(
@@ -225,10 +236,10 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
         final onSuccess = widget.onSuccess;
         if (session != null && mounted && onSuccess != null) {
           onSuccess(session);
-        widget.onSuccess?.call(session);
-        if (widget.showSuccessSnackBar) {
-          context.showSnackBar(localization.successSignInMessage);
-        }
+          widget.onSuccess?.call(session);
+          if (widget.showSuccessSnackBar) {
+            context.showSnackBar(localization.successSignInMessage);
+          }
         }
       });
     }
