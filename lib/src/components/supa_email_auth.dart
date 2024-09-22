@@ -64,12 +64,12 @@ class SupaEmailAuth extends StatefulWidget {
   final String? resetPasswordRedirectTo;
 
   /// Callback for the user to complete a sign in.
-  final void Function(AuthResponse response) onSignInComplete;
+  final void Function(AuthResponse response)? onSignInComplete;
 
   /// Callback for the user to complete a signUp.
   ///
   /// If email confirmation is turned on, the user is
-  final void Function(AuthResponse response) onSignUpComplete;
+  final void Function(AuthResponse response)? onSignUpComplete;
 
   /// Callback for sending the password reset email
   final void Function()? onPasswordResetEmailSent;
@@ -104,8 +104,8 @@ class SupaEmailAuth extends StatefulWidget {
     super.key,
     this.redirectTo,
     this.resetPasswordRedirectTo,
-    required this.onSignInComplete,
-    required this.onSignUpComplete,
+    this.onSignInComplete,
+    this.onSignUpComplete,
     this.onPasswordResetEmailSent,
     this.onError,
     this.onToggleSignIn,

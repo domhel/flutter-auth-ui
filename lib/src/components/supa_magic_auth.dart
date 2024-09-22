@@ -13,11 +13,16 @@ class SupaMagicAuth extends StatefulWidget {
   /// Typically used to pass a DeepLink
   final String? redirectUrl;
 
-  /// Method to be called when the auth action is success
-  final void Function(Session response) onSuccess;
+  /// Method to be called when the auth action is successful.
+  /// Only called when `useExternalAuthChangeListener` is false
+  final void Function(Session response)? onSuccess;
 
   /// Method to be called when the auth action threw an excepction
   final void Function(Object error)? onError;
+
+  /// Setting this to true will not instantiate a new onAuthStateChanged
+  /// subscription. Must not be used together with `onSuccess`
+  final bool useExternalAuthChangeListener;
 
   /// Localization for the form
   final SupaMagicAuthLocalization localization;
@@ -25,10 +30,11 @@ class SupaMagicAuth extends StatefulWidget {
   const SupaMagicAuth({
     super.key,
     this.redirectUrl,
-    required this.onSuccess,
+    this.onSuccess,
     this.onError,
+    this.useExternalAuthChangeListener = false,
     this.localization = const SupaMagicAuthLocalization(),
-  });
+  }) : assert(useExternalAuthChangeListener == false || onSuccess == null);
 
   @override
   State<SupaMagicAuth> createState() => _SupaMagicAuthState();
@@ -37,26 +43,30 @@ class SupaMagicAuth extends StatefulWidget {
 class _SupaMagicAuthState extends State<SupaMagicAuth> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
-  late final StreamSubscription<AuthState> _gotrueSubscription;
+  late final StreamSubscription<AuthState>? _gotrueSubscription;
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _gotrueSubscription =
-        Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-      final session = data.session;
-      if (session != null && mounted) {
-        widget.onSuccess(session);
-      }
-    });
+    if (widget.useExternalAuthChangeListener) {
+      _gotrueSubscription = null;
+    } else {
+      _gotrueSubscription =
+          Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+        final session = data.session;
+        if (session != null && mounted) {
+          widget.onSuccess?.call(session);
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     _email.dispose();
-    _gotrueSubscription.cancel();
+    _gotrueSubscription?.cancel();
     super.dispose();
   }
 
