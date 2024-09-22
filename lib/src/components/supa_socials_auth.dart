@@ -134,6 +134,9 @@ class SupaSocialsAuth extends StatefulWidget {
   /// Localization for the form
   final SupaSocialsAuthLocalization localization;
 
+  /// Custom LaunchMode support
+  final LaunchMode authScreenLaunchMode;
+
   const SupaSocialsAuth({
     super.key,
     this.nativeGoogleAuthConfig,
@@ -150,6 +153,7 @@ class SupaSocialsAuth extends StatefulWidget {
     this.queryParams,
     this.onAppleFullNameReceived,
     this.localization = const SupaSocialsAuthLocalization(),
+    this.authScreenLaunchMode = LaunchMode.platformDefault,
   }) : assert(useExternalAuthChangeListener == false || onSuccess == null);
 
   @override
@@ -288,7 +292,6 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
             width: 48,
             height: 48,
           );
-
           foregroundColor = Colors.black;
           backgroundColor = Colors.white;
           overlayColor = Colors.white;
@@ -377,6 +380,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
               redirectTo: widget.redirectUrl,
               scopes: widget.scopes?[socialProvider],
               queryParams: widget.queryParams?[socialProvider],
+              authScreenLaunchMode: widget.authScreenLaunchMode,
             );
           } on AuthException catch (error) {
             if (widget.onError == null && context.mounted) {
