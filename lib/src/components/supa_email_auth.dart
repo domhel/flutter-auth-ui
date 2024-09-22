@@ -325,7 +325,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
-        widget.onSignInComplete.call(response);
+        widget.onSignInComplete?.call(response);
       } else {
         final user = supabase.auth.currentUser;
         late final AuthResponse response;
@@ -348,7 +348,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
             data: _resolveData(),
           );
         }
-        widget.onSignUpComplete.call(response);
+        widget.onSignUpComplete?.call(response);
       }
     } on AuthException catch (error) {
       if (widget.onError == null && mounted) {
