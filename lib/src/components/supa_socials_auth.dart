@@ -129,8 +129,7 @@ class SupaSocialsAuth extends StatefulWidget {
 
   /// Callback that can be used as a workaround during native Apple sign in
   /// to receive full name.
-  final void Function(String? givenName, String? familyName)?
-      onAppleFullNameReceived;
+  final void Function(String? givenName, String? familyName)? onAppleFullNameReceived;
 
   /// Localization for the form
   final SupaSocialsAuthLocalization localization;
@@ -219,14 +218,6 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
     if (idToken == null) {
       throw const AuthException(
           'Could not find ID Token from generated Apple sign in credential.');
-    }
-
-    // Automatic linking
-    final isAnonymous = supabase.auth.currentUser?.isAnonymous == true;
-    if (isAnonymous) {
-      final email = credential.email;
-      if (email != null)
-        await supabase.auth.updateUser(UserAttributes(email: email));
     }
 
     return supabase.auth.signInWithIdToken(
@@ -368,13 +359,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
                   (isNativeAppleAuthEnabled && !kIsWeb && Platform.isIOS) ||
                       (isNativeAppleAuthEnabled && !kIsWeb && Platform.isMacOS);
               if (shouldPerformNativeAppleSignIn) {
-                final isAnonymous =
-                    supabase.auth.currentUser?.isAnonymous == true;
-                if (isAnonymous) {
-                  await _nativeAppleSignIn();
-                } else {
-                  await _nativeAppleSignIn();
-                }
+                await _nativeAppleSignIn();
                 return;
               }
             }
