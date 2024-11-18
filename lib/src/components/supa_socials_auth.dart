@@ -129,7 +129,8 @@ class SupaSocialsAuth extends StatefulWidget {
 
   /// Callback that can be used as a workaround during native Apple sign in
   /// to receive full name.
-  final void Function(String? givenName, String? familyName)? onAppleFullNameReceived;
+  final void Function(String? givenName, String? familyName)?
+      onAppleFullNameReceived;
 
   /// Localization for the form
   final SupaSocialsAuthLocalization localization;
@@ -156,6 +157,11 @@ class SupaSocialsAuth extends StatefulWidget {
   State<SupaSocialsAuth> createState() => _SupaSocialsAuthState();
 }
 
+class GoogleSignInCanceledException implements Exception {
+  final String cause;
+  const GoogleSignInCanceledException(this.cause);
+}
+
 class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
   late final StreamSubscription<AuthState>? _gotrueSubscription;
   late final SupaSocialsAuthLocalization localization;
@@ -171,6 +177,9 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
     );
 
     final googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      throw const GoogleSignInCanceledException('Abgebrochen');
+    }
     final googleAuth = await googleUser!.authentication;
     final accessToken = googleAuth.accessToken;
     final idToken = googleAuth.idToken;
