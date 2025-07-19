@@ -164,7 +164,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
               validator: (value) {
                 if (value == null ||
                     value.isEmpty ||
-                    !EmailValidator.validate(_emailController.text)) {
+                    !EmailValidator.validate(_emailController.text.trim())) {
                   return localization.validEmailError;
                 }
                 return null;
