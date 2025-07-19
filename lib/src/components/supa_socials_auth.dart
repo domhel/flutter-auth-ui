@@ -54,8 +54,7 @@ extension on OAuthProvider {
         _ => Colors.black,
       };
 
-  String get labelText =>
-      'Continue with ${name[0].toUpperCase()}${name.substring(1)}';
+  String get labelText => 'Continue with ${name[0].toUpperCase()}${name.substring(1)}';
 }
 
 enum SocialButtonVariant {
@@ -129,8 +128,7 @@ class SupaSocialsAuth extends StatefulWidget {
 
   /// Callback that can be used as a workaround during native Apple sign in
   /// to receive full name.
-  final void Function(String? givenName, String? familyName)?
-      onAppleFullNameReceived;
+  final void Function(String? givenName, String? familyName)? onAppleFullNameReceived;
 
   /// Localization for the form
   final SupaSocialsAuthLocalization localization;
@@ -171,26 +169,29 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
     required String? webClientId,
     required String? iosClientId,
   }) async {
-    final GoogleSignIn googleSignIn = GoogleSignIn(
+    await GoogleSignIn.instance.initialize(
       clientId: iosClientId,
       serverClientId: webClientId,
     );
 
-    final googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      throw const GoogleSignInCanceledException('Abgebrochen');
-    }
-    final googleAuth = await googleUser!.authentication;
-    final accessToken = googleAuth.accessToken;
+    final googleUser = await GoogleSignIn.instance.authenticate().catchError((error) {
+      if (error is GoogleSignInException) {
+        if (error.code == GoogleSignInExceptionCode.canceled) {
+          throw const GoogleSignInCanceledException('Abgebrochen');
+        }
+        throw error;
+      }
+      throw error;
+    });
+    final googleAuth = googleUser.authentication;
+    final accessToken = googleAuth.idToken;
     final idToken = googleAuth.idToken;
 
     if (accessToken == null) {
-      throw const AuthException(
-          'No Access Token found from Google sign in result.');
+      throw const AuthException('No Access Token found from Google sign in result.');
     }
     if (idToken == null) {
-      throw const AuthException(
-          'No ID Token found from Google sign in result.');
+      throw const AuthException('No ID Token found from Google sign in result.');
     }
 
     return supabase.auth.signInWithIdToken(
@@ -221,8 +222,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
 
     final idToken = credential.identityToken;
     if (idToken == null) {
-      throw const AuthException(
-          'Could not find ID Token from generated Apple sign in credential.');
+      throw const AuthException('Could not find ID Token from generated Apple sign in credential.');
     }
 
     return supabase.auth.signInWithIdToken(
@@ -239,8 +239,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
     if (widget.useExternalAuthChangeListener) {
       _gotrueSubscription = null;
     } else {
-      _gotrueSubscription =
-          Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      _gotrueSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
         final session = data.session;
         final onSuccess = widget.onSuccess;
         if (session != null && mounted && onSuccess != null) {
@@ -347,9 +346,8 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
             if (socialProvider == OAuthProvider.google) {
               final webClientId = googleAuthConfig?.webClientId;
               final iosClientId = googleAuthConfig?.iosClientId;
-              final shouldPerformNativeGoogleSignIn =
-                  (webClientId != null && !kIsWeb && Platform.isAndroid) ||
-                      (iosClientId != null && !kIsWeb && Platform.isIOS);
+              final shouldPerformNativeGoogleSignIn = (webClientId != null && !kIsWeb && Platform.isAndroid) ||
+                  (iosClientId != null && !kIsWeb && Platform.isIOS);
               if (shouldPerformNativeGoogleSignIn) {
                 await _nativeGoogleSignIn(
                   webClientId: webClientId,
@@ -361,9 +359,8 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
 
             // Check if native Apple login should be performed
             if (socialProvider == OAuthProvider.apple) {
-              final shouldPerformNativeAppleSignIn =
-                  (isNativeAppleAuthEnabled && !kIsWeb && Platform.isIOS) ||
-                      (isNativeAppleAuthEnabled && !kIsWeb && Platform.isMacOS);
+              final shouldPerformNativeAppleSignIn = (isNativeAppleAuthEnabled && !kIsWeb && Platform.isIOS) ||
+                  (isNativeAppleAuthEnabled && !kIsWeb && Platform.isMacOS);
               if (shouldPerformNativeAppleSignIn) {
                 await _nativeAppleSignIn();
                 return;
@@ -395,8 +392,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
             }
           } catch (error) {
             if (widget.onError == null && context.mounted) {
-              context
-                  .showErrorSnackBar('${localization.unexpectedError}: $error');
+              context.showErrorSnackBar('${localization.unexpectedError}: $error');
             } else {
               widget.onError?.call(error);
             }
@@ -428,8 +424,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
                   style: authButtonStyle,
                   onPressed: onAuthButtonPressed,
                   label: Text(
-                    localization.oAuthButtonLabels[socialProvider] ??
-                        socialProvider.labelText,
+                    localization.oAuthButtonLabels[socialProvider] ?? socialProvider.labelText,
                   ),
                 ),
         );
