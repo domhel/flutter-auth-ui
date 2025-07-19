@@ -19,7 +19,7 @@ class SignUp extends StatelessWidget {
             onSignInComplete: (response) {
               Navigator.of(context).pushReplacementNamed('/home');
             },
-            onSignUpComplete: (response) {
+            onSignUpComplete: (response, email, password) {
               Navigator.of(context).pushReplacementNamed('/home');
             },
             metadataFields: [
