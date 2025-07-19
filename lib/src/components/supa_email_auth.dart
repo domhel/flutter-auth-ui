@@ -69,7 +69,7 @@ class SupaEmailAuth extends StatefulWidget {
   /// Callback for the user to complete a signUp.
   ///
   /// If email confirmation is turned on, the user is
-  final void Function(AuthResponse response)? onSignUpComplete;
+  final void Function(AuthResponse response, String email, String password)? onSignUpComplete;
 
   /// Callback for sending the password reset email
   final void Function()? onPasswordResetEmailSent;
@@ -236,11 +236,13 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   setState(() {
                     _isLoading = true;
                   });
+                  final email = _emailController.text.trim();
+                  final password = _passwordController.text.trim();
                   try {
                     if (_isSigningIn) {
                       final response = await supabase.auth.signInWithPassword(
-                        email: _emailController.text.trim(),
-                        password: _passwordController.text.trim(),
+                        email: email,
+                        password: password,
                       );
                       widget.onSignInComplete?.call(response);
                     } else {
@@ -249,8 +251,8 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                       if (user?.isAnonymous == true) {
                         await supabase.auth.updateUser(
                           UserAttributes(
-                            email: _emailController.text.trim(),
-                            password: _passwordController.text.trim(),
+                            email: email,
+                            password: password,
                             data: _resolveData(),
                           ),
                           emailRedirectTo: widget.redirectTo,
@@ -259,13 +261,13 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                         response = AuthResponse(session: newSession);
                       } else {
                         response = await supabase.auth.signUp(
-                          email: _emailController.text.trim(),
-                          password: _passwordController.text.trim(),
+                          email: email,
+                          password: password,
                           emailRedirectTo: widget.redirectTo,
                           data: _resolveData(),
                         );
                       }
-                      widget.onSignUpComplete?.call(response);
+                      widget.onSignUpComplete?.call(response, email, password);
                     }
                   } on AuthException catch (error) {
                     if (widget.onError == null && context.mounted) {
