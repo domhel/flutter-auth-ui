@@ -327,7 +327,10 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   widget.onToggleSignIn?.call(_isSigningIn);
                   widget.onToggleRecoverPassword?.call(_isRecoveringPassword);
                 },
-                child: Text(_isSigningIn ? localization.dontHaveAccount : localization.haveAccount),
+                child: Text(
+                  _isSigningIn ? localization.dontHaveAccount : localization.haveAccount,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
             if (_isSigningIn && _isRecoveringPassword) ...[
@@ -366,7 +369,10 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                     }
                   }
                 },
-                child: Text(localization.sendPasswordReset),
+                child: Text(
+                  localization.sendPasswordReset,
+                  textAlign: TextAlign.center,
+                ),
               ),
               spacer(8),
               TextButton(
