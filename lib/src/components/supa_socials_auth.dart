@@ -54,8 +54,7 @@ extension on OAuthProvider {
         _ => Colors.black,
       };
 
-  String get labelText =>
-      'Continue with ${name[0].toUpperCase()}${name.substring(1)}';
+  String get labelText => 'Continue with ${name[0].toUpperCase()}${name.substring(1)}';
 }
 
 enum SocialButtonVariant {
@@ -129,8 +128,7 @@ class SupaSocialsAuth extends StatefulWidget {
 
   /// Callback that can be used as a workaround during native Apple sign in
   /// to receive full name.
-  final void Function(String? givenName, String? familyName)?
-      onAppleFullNameReceived;
+  final void Function(String? givenName, String? familyName)? onAppleFullNameReceived;
 
   /// Localization for the form
   final SupaSocialsAuthLocalization localization;
@@ -166,6 +164,8 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
   late final StreamSubscription<AuthState>? _gotrueSubscription;
   late final SupaSocialsAuthLocalization localization;
 
+  static const _iconSize = 40.0;
+
   /// Performs Google sign in on Android and iOS
   Future<AuthResponse> _nativeGoogleSignIn({
     required String? webClientId,
@@ -180,17 +180,15 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
     if (googleUser == null) {
       throw const GoogleSignInCanceledException('Abgebrochen');
     }
-    final googleAuth = await googleUser!.authentication;
+    final googleAuth = await googleUser.authentication;
     final accessToken = googleAuth.accessToken;
     final idToken = googleAuth.idToken;
 
     if (accessToken == null) {
-      throw const AuthException(
-          'No Access Token found from Google sign in result.');
+      throw const AuthException('No Access Token found from Google sign in result.');
     }
     if (idToken == null) {
-      throw const AuthException(
-          'No ID Token found from Google sign in result.');
+      throw const AuthException('No ID Token found from Google sign in result.');
     }
 
     return supabase.auth.signInWithIdToken(
@@ -221,8 +219,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
 
     final idToken = credential.identityToken;
     if (idToken == null) {
-      throw const AuthException(
-          'Could not find ID Token from generated Apple sign in credential.');
+      throw const AuthException('Could not find ID Token from generated Apple sign in credential.');
     }
 
     return supabase.auth.signInWithIdToken(
@@ -239,8 +236,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
     if (widget.useExternalAuthChangeListener) {
       _gotrueSubscription = null;
     } else {
-      _gotrueSubscription =
-          Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      _gotrueSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
         final session = data.session;
         final onSuccess = widget.onSuccess;
         if (session != null && mounted && onSuccess != null) {
@@ -283,8 +279,8 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
         Color? iconColor = coloredBg ? Colors.white : null;
 
         Widget iconWidget = SizedBox(
-          height: 48,
-          width: 48,
+          height: _iconSize,
+          width: _iconSize,
           child: Icon(
             socialProvider.iconData,
             color: iconColor,
@@ -294,8 +290,8 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
           iconWidget = Image.asset(
             'assets/logos/google_light.png',
             package: 'supabase_auth_ui',
-            width: 48,
-            height: 48,
+            width: _iconSize,
+            height: _iconSize,
           );
 
           foregroundColor = Colors.black;
@@ -308,24 +304,24 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
             iconWidget = Image.asset(
               'assets/logos/notion.png',
               package: 'supabase_auth_ui',
-              width: 48,
-              height: 48,
+              width: _iconSize,
+              height: _iconSize,
             );
             break;
           case OAuthProvider.kakao:
             iconWidget = Image.asset(
               'assets/logos/kakao.png',
               package: 'supabase_auth_ui',
-              width: 48,
-              height: 48,
+              width: _iconSize,
+              height: _iconSize,
             );
             break;
           case OAuthProvider.keycloak:
             iconWidget = Image.asset(
               'assets/logos/keycloak.png',
               package: 'supabase_auth_ui',
-              width: 48,
-              height: 48,
+              width: _iconSize,
+              height: _iconSize,
             );
             break;
           case OAuthProvider.workos:
@@ -333,8 +329,8 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
               'assets/logos/workOS.png',
               package: 'supabase_auth_ui',
               color: coloredBg ? Colors.white : null,
-              width: 48,
-              height: 48,
+              width: _iconSize,
+              height: _iconSize,
             );
             break;
           default:
@@ -347,9 +343,8 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
             if (socialProvider == OAuthProvider.google) {
               final webClientId = googleAuthConfig?.webClientId;
               final iosClientId = googleAuthConfig?.iosClientId;
-              final shouldPerformNativeGoogleSignIn =
-                  (webClientId != null && !kIsWeb && Platform.isAndroid) ||
-                      (iosClientId != null && !kIsWeb && Platform.isIOS);
+              final shouldPerformNativeGoogleSignIn = (webClientId != null && !kIsWeb && Platform.isAndroid) ||
+                  (iosClientId != null && !kIsWeb && Platform.isIOS);
               if (shouldPerformNativeGoogleSignIn) {
                 await _nativeGoogleSignIn(
                   webClientId: webClientId,
@@ -361,9 +356,8 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
 
             // Check if native Apple login should be performed
             if (socialProvider == OAuthProvider.apple) {
-              final shouldPerformNativeAppleSignIn =
-                  (isNativeAppleAuthEnabled && !kIsWeb && Platform.isIOS) ||
-                      (isNativeAppleAuthEnabled && !kIsWeb && Platform.isMacOS);
+              final shouldPerformNativeAppleSignIn = (isNativeAppleAuthEnabled && !kIsWeb && Platform.isIOS) ||
+                  (isNativeAppleAuthEnabled && !kIsWeb && Platform.isMacOS);
               if (shouldPerformNativeAppleSignIn) {
                 await _nativeAppleSignIn();
                 return;
@@ -395,8 +389,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
             }
           } catch (error) {
             if (widget.onError == null && context.mounted) {
-              context
-                  .showErrorSnackBar('${localization.unexpectedError}: $error');
+              context.showErrorSnackBar('${localization.unexpectedError}: $error');
             } else {
               widget.onError?.call(error);
             }
@@ -410,29 +403,25 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
           iconColor: WidgetStateProperty.all(iconColor),
         );
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          child: widget.socialButtonVariant == SocialButtonVariant.icon
-              ? Material(
-                  shape: const CircleBorder(),
-                  elevation: 2,
-                  color: backgroundColor,
-                  child: InkResponse(
-                    radius: 24,
-                    onTap: onAuthButtonPressed,
-                    child: iconWidget,
-                  ),
-                )
-              : ElevatedButton.icon(
-                  icon: iconWidget,
-                  style: authButtonStyle,
-                  onPressed: onAuthButtonPressed,
-                  label: Text(
-                    localization.oAuthButtonLabels[socialProvider] ??
-                        socialProvider.labelText,
-                  ),
+        return widget.socialButtonVariant == SocialButtonVariant.icon
+            ? Material(
+                shape: const CircleBorder(),
+                elevation: 2,
+                color: backgroundColor,
+                child: InkResponse(
+                  radius: 24,
+                  onTap: onAuthButtonPressed,
+                  child: iconWidget,
                 ),
-        );
+              )
+            : ElevatedButton.icon(
+                icon: iconWidget,
+                style: authButtonStyle,
+                onPressed: onAuthButtonPressed,
+                label: Text(
+                  localization.oAuthButtonLabels[socialProvider] ?? socialProvider.labelText,
+                ),
+              );
       },
     );
 
@@ -441,9 +430,10 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
             alignment: WrapAlignment.spaceEvenly,
             children: authButtons,
           )
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: authButtons,
+        : Row(
+            // crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 8,
+            children: authButtons.map((b) => Expanded(child: b)).toList(),
           );
   }
 }
