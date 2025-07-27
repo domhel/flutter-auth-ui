@@ -214,33 +214,31 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   );
                 });
               }),
-              spacer(8),
+              spacer(4),
               if (widget.metadataFields != null && !_isSigningIn)
-                ...widget.metadataFields!
-                    .map((metadataField) => [
-                          TextFormField(
-                            controller: _metadataControllers[metadataField],
-                            textInputAction: widget.metadataFields!.last == metadataField
-                                ? TextInputAction.go
-                                : TextInputAction.next,
-                            onFieldSubmitted:
-                                widget.metadataFields!.last == metadataField ? (_) => _onSignInOrSignUp() : null,
-                            decoration: InputDecoration(
-                              label: Text(metadataField.label),
-                              prefixIcon: metadataField.prefixIcon,
-                              isDense: true,
-                              border: const OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                              ),
-                            ),
-                            validator: metadataField.validator,
+                ...widget.metadataFields!.map((metadataField) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: TextFormField(
+                        controller: _metadataControllers[metadataField],
+                        textInputAction:
+                            widget.metadataFields!.last == metadataField ? TextInputAction.go : TextInputAction.next,
+                        onFieldSubmitted:
+                            widget.metadataFields!.last == metadataField ? (_) => _onSignInOrSignUp() : null,
+                        decoration: InputDecoration(
+                          label: Text(metadataField.label),
+                          prefixIcon: metadataField.prefixIcon,
+                          isDense: true,
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(30.0)),
                           ),
-                          spacer(8),
-                        ])
-                    .expand((element) => element),
-              FilledButton(
+                        ),
+                        validator: metadataField.validator,
+                      ),
+                    )),
+              FilledButton.icon(
                 onPressed: _onSignInOrSignUp,
-                child: (_isLoading)
+                icon: _isLoading ? null : Icon(Icons.login),
+                label: (_isLoading)
                     ? SizedBox(
                         height: 16,
                         width: 16,
@@ -280,8 +278,8 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
               ),
             ],
             if (_isSigningIn && _isRecoveringPassword) ...[
-              spacer(8),
-              FilledButton(
+              spacer(4),
+              FilledButton.icon(
                 onPressed: () async {
                   try {
                     if (!_formKey.currentState!.validate()) {
@@ -315,7 +313,8 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                     }
                   }
                 },
-                child: Text(
+                icon: const Icon(Icons.send),
+                label: Text(
                   localization.sendPasswordReset,
                   textAlign: TextAlign.center,
                 ),
