@@ -177,27 +177,41 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
             ),
             if (!_isRecoveringPassword) ...[
               spacer(8),
-              TextFormField(
-                autofillHints: _isSigningIn ? [AutofillHints.password] : [AutofillHints.newPassword],
-                textInputAction:
-                    widget.metadataFields != null && !_isSigningIn ? TextInputAction.next : TextInputAction.done,
-                validator: (value) {
-                  if (value == null || value.isEmpty || value.length < 6) {
-                    return localization.passwordLengthError;
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock),
-                  label: Text(localization.enterPassword),
-                  isDense: true,
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                  ),
-                ),
-                obscureText: true,
-                controller: _passwordController,
-              ),
+              Builder(builder: (context) {
+                bool obscurePassword = true;
+                return StatefulBuilder(builder: (context, setState) {
+                  return TextFormField(
+                    autofillHints: _isSigningIn ? [AutofillHints.password] : [AutofillHints.newPassword],
+                    textInputAction:
+                        widget.metadataFields != null && !_isSigningIn ? TextInputAction.next : TextInputAction.done,
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length < 6) {
+                        return localization.passwordLengthError;
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.lock),
+                      label: Text(localization.enterPassword),
+                      isDense: true,
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                      ),
+                      suffixIcon: IconButton(
+                        tooltip: obscurePassword ? localization.show : localization.hide,
+                        icon: Icon(obscurePassword ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                      ),
+                    ),
+                    obscureText: obscurePassword,
+                    controller: _passwordController,
+                  );
+                });
+              }),
               spacer(8),
               if (widget.metadataFields != null && !_isSigningIn)
                 ...widget.metadataFields!

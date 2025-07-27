@@ -12,13 +12,14 @@ class SupaEmailAuthLocalization {
   final String passwordResetSent;
   final String backToSignIn;
   final String unexpectedError;
+  final String show;
+  final String hide;
 
   const SupaEmailAuthLocalization({
     this.enterEmail = 'Enter your email',
     this.validEmailError = 'Please enter a valid email address',
     this.enterPassword = 'Enter your password',
-    this.passwordLengthError =
-        'Please enter a password that is at least 6 characters long',
+    this.passwordLengthError = 'Please enter a password that is at least 6 characters long',
     this.signIn = 'Sign In',
     this.signUp = 'Sign Up',
     this.forgotPassword = 'Forgot your password?',
@@ -28,5 +29,7 @@ class SupaEmailAuthLocalization {
     this.passwordResetSent = 'Password reset email has been sent',
     this.backToSignIn = 'Back to sign in',
     this.unexpectedError = 'An unexpected error occurred',
+    this.show = 'Show',
+    this.hide = 'Hide',
   });
 }
