@@ -165,37 +165,41 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
   late final SupaSocialsAuthLocalization localization;
 
   static const _iconSize = 40.0;
+  static bool _googleSignInInitialized = false;
 
   /// Performs Google sign in on Android and iOS
   Future<AuthResponse> _nativeGoogleSignIn({
     required String? webClientId,
     required String? iosClientId,
   }) async {
-    final GoogleSignIn googleSignIn = GoogleSignIn(
-      clientId: iosClientId,
-      serverClientId: webClientId,
-    );
+    final googleSignIn = GoogleSignIn.instance;
 
-    final googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      throw const GoogleSignInCanceledException('Abgebrochen');
-    }
-    final googleAuth = await googleUser.authentication;
-    final accessToken = googleAuth.accessToken;
-    final idToken = googleAuth.idToken;
-
-    if (accessToken == null) {
-      throw const AuthException('No Access Token found from Google sign in result.');
-    }
-    if (idToken == null) {
-      throw const AuthException('No ID Token found from Google sign in result.');
+    if (!_googleSignInInitialized) {
+      await googleSignIn.initialize(
+        clientId: iosClientId,
+        serverClientId: webClientId,
+      );
+      _googleSignInInitialized = true;
     }
 
-    return supabase.auth.signInWithIdToken(
-      provider: OAuthProvider.google,
-      idToken: idToken,
-      accessToken: accessToken,
-    );
+    try {
+      final googleUser = await googleSignIn.authenticate();
+      final idToken = googleUser.authentication.idToken;
+
+      if (idToken == null) {
+        throw const AuthException('No ID Token found from Google sign in result.');
+      }
+
+      return supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+      );
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        throw GoogleSignInCanceledException(e.description ?? 'Canceled');
+      }
+      rethrow;
+    }
   }
 
   /// Performs Apple sign in on iOS or macOS
