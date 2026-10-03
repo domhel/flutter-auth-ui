@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 AppBar appBar(String title) => AppBar(
       title: Text(title),
