@@ -95,6 +95,9 @@ class SupaEmailAuth extends StatefulWidget {
   /// Localization for the form
   final SupaEmailAuthLocalization localization;
 
+  /// Whether the form starts on sign in (default) or on sign up. The toggle below the form switches as usual.
+  final bool isInitiallySigningIn;
+
   /// {@macro supa_email_auth}
   const SupaEmailAuth({
     super.key,
@@ -109,6 +112,7 @@ class SupaEmailAuth extends StatefulWidget {
     this.metadataFields,
     this.extraMetadata,
     this.localization = const SupaEmailAuthLocalization(),
+    this.isInitiallySigningIn = true,
   });
 
   @override
@@ -132,6 +136,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
   @override
   void initState() {
     super.initState();
+    _isSigningIn = widget.isInitiallySigningIn;
     _metadataControllers = Map.fromEntries(
         (widget.metadataFields ?? []).map((metadataField) => MapEntry(metadataField, TextEditingController())));
   }
